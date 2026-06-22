@@ -37,6 +37,10 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   SMITrigger? _triggerIdleLEar;
   SMITrigger? _triggerIdle;
 
+  SMITrigger? _findTrigger(String name) {
+    return _riveController?.stateMachine.trigger(name);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -75,21 +79,21 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
     if (controller != null) {
       artboard.addController(controller);
       _riveController = controller;
-      _cacheInputs(controller);
+      _cacheInputs();
       _applyMood(widget.mood);
     }
   }
 
-  void _cacheInputs(StateMachineController controller) {
-    _triggerBlink = controller.findInput<SMITrigger>('blink');
-    _triggerJump = controller.findInput<SMITrigger>('jump');
-    _triggerTailAnim = controller.findInput<SMITrigger>('tail_an');
-    _triggerIdleTail = controller.findInput<SMITrigger>('idle_tail');
-    _triggerREarAnim = controller.findInput<SMITrigger>('R_ear_an');
-    _triggerIdleREar = controller.findInput<SMITrigger>('idle_R_ear');
-    _triggerLEarAnim = controller.findInput<SMITrigger>('L_ear_an');
-    _triggerIdleLEar = controller.findInput<SMITrigger>('edle_L_ear');
-    _triggerIdle = controller.findInput<SMITrigger>('idle');
+  void _cacheInputs() {
+    _triggerBlink = _findTrigger('blink');
+    _triggerJump = _findTrigger('jump');
+    _triggerTailAnim = _findTrigger('tail_an');
+    _triggerIdleTail = _findTrigger('idle_tail');
+    _triggerREarAnim = _findTrigger('R_ear_an');
+    _triggerIdleREar = _findTrigger('idle_R_ear');
+    _triggerLEarAnim = _findTrigger('L_ear_an');
+    _triggerIdleLEar = _findTrigger('edle_L_ear');
+    _triggerIdle = _findTrigger('idle');
   }
 
   void _applyMood(CatMood mood) {
