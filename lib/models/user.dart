@@ -69,6 +69,19 @@ class UserProgress extends ChangeNotifier {
     save();
   }
 
+  void buyCostume(String costumeId) {
+    final costume = CostumeInfo.findById(costumeId);
+    if (costume == null) return;
+    if (ownedCostumes.contains(costumeId)) return;
+    if (totalCandies < costume.price) return;
+
+    totalCandies -= costume.price;
+    ownedCostumes = [...ownedCostumes, costumeId];
+    activeCostume = costumeId;
+    notifyListeners();
+    save();
+  }
+
   void _updateStreak() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

@@ -7,6 +7,7 @@ import '../widgets/cat_avatar.dart';
 import '../widgets/star_counter.dart';
 import '../widgets/candy_jar.dart';
 import '../widgets/plush_button.dart';
+import 'costume_shop.dart';
 import 'task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -85,9 +86,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(horizontal: CatWiseTheme.screenPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          StarCounter(),
-          CandyJar(),
+        children: [
+          const StarCounter(),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => const CostumeShop(),
+                  transitionsBuilder: (_, animation, __, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                  transitionDuration: CatWiseTheme.animSmooth,
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: CatWiseTheme.plushShadow,
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: CatWiseTheme.starGold,
+                size: 24,
+              ),
+            ),
+          ),
+          const CandyJar(),
         ],
       ),
     );
