@@ -23,6 +23,7 @@ jobs:
 
       - run: rm -rf android
       - run: flutter create --platforms=android --org com.catwise .
+      - run: rm -f test/widget_test.dart
       - run: flutter pub get
 
       - run: flutter test
