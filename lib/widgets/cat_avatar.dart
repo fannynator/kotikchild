@@ -27,15 +27,15 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   late final AnimationController _hugController;
   StateMachineController? _riveController;
 
-  SMITrigger? _triggerBlink;
-  SMITrigger? _triggerJump;
-  SMITrigger? _triggerTailAnim;
-  SMITrigger? _triggerIdleTail;
-  SMITrigger? _triggerREarAnim;
-  SMITrigger? _triggerIdleREar;
-  SMITrigger? _triggerLEarAnim;
-  SMITrigger? _triggerIdleLEar;
-  SMITrigger? _triggerIdle;
+  SMIInput<SMITrigger>?  _triggerBlink;
+  SMIInput<SMITrigger>?  _triggerJump;
+  SMIInput<SMITrigger>?  _triggerTailAnim;
+  SMIInput<SMITrigger>?  _triggerIdleTail;
+  SMIInput<SMITrigger>?  _triggerREarAnim;
+  SMIInput<SMITrigger>?  _triggerIdleREar;
+  SMIInput<SMITrigger>?  _triggerLEarAnim;
+  SMIInput<SMITrigger>?  _triggerIdleLEar;
+  SMIInput<SMITrigger>?  _triggerIdle;
 
   @override
   void initState() {
