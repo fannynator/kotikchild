@@ -10,6 +10,7 @@ import '../core/theme.dart';
 import '../core/constants.dart';
 import '../models/user.dart';
 import '../services/ai_service.dart';
+import '../services/subscription_service.dart';
 
 class ParentGate extends StatefulWidget {
   final Widget child;
@@ -142,7 +143,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -170,6 +171,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
                 Tab(text: 'Настройки'),
                 Tab(text: 'Отчёты'),
                 Tab(text: 'ИИ'),
+                Tab(text: 'Подписка'),
               ],
             ),
             Expanded(
@@ -180,6 +182,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
                   _SettingsTab(settings: _settings, onChanged: _updateSettings),
                   _ReportsTab(progress: context.watch<UserProgress>()),
                   const _AiTab(),
+                  const _SubTab(),
                 ],
               ),
             ),
@@ -739,7 +742,118 @@ class _AiTabState extends State<_AiTab> {
   }
 }
 
-class _ProviderChip extends StatelessWidget {
+class _SubTab extends StatelessWidget {
+  const _SubTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = context.watch<SubscriptionService>();
+
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: CatWiseTheme.cardDecoration(),
+          child: Column(
+            children: [
+              Icon(
+                sub.hasSubscription ? Icons.workspace_premium_rounded : Icons.card_giftcard_rounded,
+                size: 56,
+                color: sub.hasSubscription ? CatWiseTheme.starGold : CatWiseTheme.warmHoney,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                sub.hasSubscription ? 'Волшебный чердак активен!' : 'Волшебный чердак',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: CatWiseTheme.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              if (sub.hasSubscription)
+                Text(
+                  'Подписка действует до ${sub.expiryDate?.day}.${sub.expiryDate?.month}.${sub.expiryDate?.year}',
+                  style: const TextStyle(fontSize: 14, color: CatWiseTheme.textSecondary),
+                )
+              else if (sub.isTrialAvailable)
+                const Text('3 дня бесплатно, потом 149₽/мес',
+                    style: TextStyle(fontSize: 14, color: CatWiseTheme.textSecondary)),
+              const SizedBox(height: 20),
+              ..._features.map((f) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: CatWiseTheme.successGreen, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(f, style: CatWiseTheme.parentStyle)),
+                      ],
+                    ),
+                  )),
+              const SizedBox(height: 24),
+              if (sub.hasSubscription)
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: CatWiseTheme.successGreen.withOpacity(0.2),
+                      foregroundColor: CatWiseTheme.successGreen,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: null,
+                    child: const Text('Подписка активна', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                )
+              else if (sub.isTrialAvailable)
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: CatWiseTheme.warmHoney,
+                      foregroundColor: CatWiseTheme.textPrimary,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                    onPressed: () => sub.startTrial(),
+                    child: const Text('Начать триал 3 дня', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CatWiseTheme.starGold,
+                          foregroundColor: CatWiseTheme.textPrimary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                        onPressed: () => sub.purchase(store: 'rustore'),
+                        child: const Text('Купить — RuStore', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => sub.restorePurchase(),
+                      child: const Text('Восстановить покупку', style: TextStyle(color: CatWiseTheme.textSecondary)),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  static const _features = [
+    '🖼️ Эксклюзивные шляпы для Котика',
+    '🎮 Мини-игры между заданиями',
+    '📊 Отчёты для родителей (поделиться)',
+    '🦸 Безлимитные задания',
+    '🌸 Новые наряды каждый месяц',
+  ];
+}
   final String label;
   final bool selected;
   final VoidCallback onTap;

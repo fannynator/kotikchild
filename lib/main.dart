@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'app.dart';
 import 'core/theme.dart';
 import 'models/user.dart';
+import 'services/subscription_service.dart';
 import 'services/voice_service.dart';
 import 'services/tts_service.dart';
 
@@ -24,6 +25,7 @@ void main() async {
   final voiceService = VoiceService();
   final ttsService = TtsService();
   final userProgress = await UserProgress.load();
+  await SubscriptionService.instance.init();
 
   await Future.wait([
     voiceService.initialize(),
@@ -36,6 +38,7 @@ void main() async {
         ChangeNotifierProvider.value(value: voiceService),
         ChangeNotifierProvider.value(value: ttsService),
         ChangeNotifierProvider.value(value: userProgress),
+        ChangeNotifierProvider.value(value: SubscriptionService.instance),
       ],
       child: const CatWiseApp(),
     ),
