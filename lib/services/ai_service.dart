@@ -30,15 +30,28 @@ class AIService {
 ''';
 
   static String? _apiKey;
+  static String _provider = 'gemini';
 
   static void setApiKey(String key) {
     _apiKey = key;
+  }
+
+  static void setProvider(String provider) {
+    _provider = provider;
   }
 
   static Future<String> chat(String message, {String mode = 'chat'}) async {
     if (_apiKey == null || _apiKey!.isEmpty) {
       return 'Мяу! Мой волшебный ключик ещё не настроен. Попроси родителей помочь!';
     }
+
+    if (_provider == 'gigachat') {
+      return _gigaChat(message, mode: mode);
+    }
+    return _geminiChat(message, mode: mode);
+  }
+
+  static Future<String> _geminiChat(String message, {String mode = 'chat'}) async {
 
     final systemPrompt = switch (mode) {
       'story' => _storyPrompt,
@@ -81,6 +94,66 @@ class AIService {
       return 'Ой! Мой волшебный шарик затуманился. Попробуем ещё раз?';
     } catch (e) {
       debugPrint('Gemini API exception: $e');
+      return 'Мяу! Что-то пошло не так. Давай попробуем позже!';
+    }
+  }
+
+  static Future<String> _gigaChat(String message, {String mode = 'chat'}) async {
+    final systemPrompt = switch (mode) {
+      'story' => _storyPrompt,
+      'riddle' => _riddlePrompt,
+      _ => _systemPrompt,
+    };
+
+    try {
+      final authResponse = await http.post(
+        Uri.parse('https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'RqUID': 'catwise-kotik-ucheny',
+          'Authorization': 'Bearer $_apiKey',
+        },
+        body: 'scope=GIGACHAT_API_PERS',
+      );
+
+      String accessToken;
+      if (authResponse.statusCode == 200) {
+        final authData = jsonDecode(authResponse.body);
+        accessToken = authData['access_token'] as String;
+      } else {
+        debugPrint('GigaChat auth error: ${authResponse.statusCode}');
+        return 'Ой! Не могу подключиться к волшебству. Проверь ключ!';
+      }
+
+      final chatResponse = await http.post(
+        Uri.parse('https://gigachat.devices.sberbank.ru/api/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          'model': 'GigaChat',
+          'messages': [
+            {'role': 'system', 'content': systemPrompt},
+            {'role': 'user', 'content': message},
+          ],
+          'max_tokens': 300,
+          'temperature': 0.9,
+        }),
+      );
+
+      if (chatResponse.statusCode == 200) {
+        final data = jsonDecode(chatResponse.body);
+        final text = data['choices']?[0]?['message']?['content'] as String?;
+        return text ?? 'Мяу! Я задумался... Давай ещё раз!';
+      }
+
+      debugPrint('GigaChat API error: ${chatResponse.statusCode} ${chatResponse.body}');
+      return 'Ой! Мой волшебный шарик затуманился. Попробуем ещё раз?';
+    } catch (e) {
+      debugPrint('GigaChat API exception: $e');
       return 'Мяу! Что-то пошло не так. Давай попробуем позже!';
     }
   }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
 import '../models/user.dart';
+import '../services/ai_service.dart';
 
 class ParentGate extends StatefulWidget {
   final Widget child;
@@ -136,7 +138,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -163,6 +165,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
                 Tab(text: 'Прогресс'),
                 Tab(text: 'Настройки'),
                 Tab(text: 'Отчёты'),
+                Tab(text: 'ИИ'),
               ],
             ),
             Expanded(
@@ -172,6 +175,7 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
                   _ProgressTab(progress: context.watch<UserProgress>()),
                   _SettingsTab(settings: _settings, onChanged: _updateSettings),
                   _ReportsTab(progress: context.watch<UserProgress>()),
+                  const _AiTab(),
                 ],
               ),
             ),
@@ -497,3 +501,130 @@ class _ReportsTab extends StatelessWidget {
     );
   }
 }
+
+class _AiTab extends StatefulWidget {
+  const _AiTab();
+
+  @override
+  State<_AiTab> createState() => _AiTabState();
+}
+
+class _AiTabState extends State<_AiTab> {
+  final _keyController = TextEditingController();
+  String _provider = 'gemini';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = prefs.getString('ai_api_key') ?? '';
+    final provider = prefs.getString('ai_provider') ?? 'gemini';
+    _keyController.text = key;
+    AIService.setApiKey(key);
+    if (mounted) setState(() => _provider = provider);
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('ai_api_key', _keyController.text.trim());
+    await prefs.setString('ai_provider', _provider);
+    AIService.setApiKey(_keyController.text.trim());
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Сохранено!'), duration: Duration(seconds: 1)),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: CatWiseTheme.cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Провайдер ИИ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: CatWiseTheme.textPrimary)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _ProviderChip(
+                    label: 'Gemini',
+                    selected: _provider == 'gemini',
+                    onTap: () => setState(() => _provider = 'gemini'),
+                  ),
+                  const SizedBox(width: 8),
+                  _ProviderChip(
+                    label: 'GigaChat',
+                    selected: _provider == 'gigachat',
+                    onTap: () => setState(() => _provider = 'gigachat'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text('API-ключ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: CatWiseTheme.textPrimary)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _keyController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Вставьте ключ...',
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.5),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.save_rounded),
+                    onPressed: _save,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _provider == 'gemini'
+                    ? 'Gemini API бесплатен (1500 запросов/день). Нужен VPN для РФ. Ключ: aistudio.google.com'
+                    : 'GigaChat API от Сбера. Работает в РФ. Ключ: developers.sber.ru',
+                style: const TextStyle(fontSize: 12, color: CatWiseTheme.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProviderChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ProviderChip({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? CatWiseTheme.warmHoney.withOpacity(0.4) : Colors.white.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(12),
+          border: selected ? Border.all(color: CatWiseTheme.warmHoney) : null,
+        ),
+        child: Text(label, style: const TextStyle(fontSize: 14, color: CatWiseTheme.textPrimary)),
+      ),
+    );
+  }
