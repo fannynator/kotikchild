@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
@@ -460,43 +464,172 @@ class _SettingsTabState extends State<_SettingsTab> {
   }
 }
 
-class _ReportsTab extends StatelessWidget {
+class _ReportsTab extends StatefulWidget {
   final UserProgress? progress;
 
   const _ReportsTab({required this.progress});
 
   @override
+  State<_ReportsTab> createState() => _ReportsTabState();
+}
+
+class _ReportsTabState extends State<_ReportsTab> {
+  final _repaintKey = GlobalKey();
+
+  Future<void> _share() async {
+    try {
+      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/kotik_report.png');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+
+      await Share.shareXFiles([XFile(file.path)], text: 'Успехи в Котике Учёном!');
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(32),
-        decoration: CatWiseTheme.cardDecoration(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.picture_as_pdf_rounded, size: 64, color: CatWiseTheme.textSecondary),
-            const SizedBox(height: 16),
-            Text(
-              'PDF-отчёты доступны\nпо подписке «Волшебный чердак»',
-              textAlign: TextAlign.center,
-              style: CatWiseTheme.parentStyle,
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CatWiseTheme.warmHoney,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    if (widget.progress == null) {
+      return const Center(
+        child: Text('Нет данных', style: TextStyle(color: CatWiseTheme.textSecondary)),
+      );
+    }
+
+    final p = widget.progress!;
+
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: RepaintBoundary(
+              key: _repaintKey,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: CatWiseTheme.cardDecoration(color: Colors.white),
+                child: Column(
+                  children: [
+                    const Icon(Icons.pets_rounded, size: 48, color: CatWiseTheme.warmHoney),
+                    const SizedBox(height: 8),
+                    const Text('Котик Учёный',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: CatWiseTheme.textPrimary)),
+                    const Text('Отчёт об успехах',
+                        style: TextStyle(fontSize: 14, color: CatWiseTheme.textSecondary)),
+                    const SizedBox(height: 20),
+                    _ReportRow(label: 'Пройдено заданий', value: '${p.tasksCompleted}', icon: Icons.task_alt_rounded, color: CatWiseTheme.successGreen),
+                    _ReportRow(label: 'Звёзд заработано', value: p.totalStars.toStringAsFixed(1), icon: Icons.star_rounded, color: CatWiseTheme.starGold),
+                    _ReportRow(label: 'Конфет собрано', value: '${p.totalCandies}', icon: Icons.favorite_rounded, color: CatWiseTheme.candyPink),
+                    _ReportRow(label: 'Серия дней', value: '${p.currentStreak} (рекорд: ${p.longestStreak})', icon: Icons.local_fire_department_rounded, color: CatWiseTheme.errorPeach),
+                    _ReportRow(label: 'Шляп собрано', value: '${p.ownedCostumes.length} из 10', icon: Icons.auto_awesome_rounded, color: CatWiseTheme.warmHoney),
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    const Text('Прогресс по блокам',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: CatWiseTheme.textPrimary)),
+                    const SizedBox(height: 8),
+                    _BlockReportRow(label: 'Буквы', done: p.blockProgress['letters'] ?? 0, total: AppConstants.tasksPerBlock, color: CatWiseTheme.softLavender),
+                    _BlockReportRow(label: 'Математика', done: p.blockProgress['math'] ?? 0, total: AppConstants.tasksPerBlock, color: CatWiseTheme.mintGreen),
+                    _BlockReportRow(label: 'Окружающий мир', done: p.blockProgress['world'] ?? 0, total: AppConstants.tasksPerBlock, color: CatWiseTheme.skyBlue),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Сформировано: ${DateTime.now().day}.${DateTime.now().month}.${DateTime.now().year}',
+                      style: const TextStyle(fontSize: 11, color: CatWiseTheme.textSecondary),
+                    ),
+                  ],
                 ),
-                onPressed: () {},
-                child: Text('Оформить подписку', style: CatWiseTheme.bodyStyle.copyWith(fontWeight: FontWeight.w600)),
               ),
             ),
-          ],
+          ),
         ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CatWiseTheme.warmHoney,
+                foregroundColor: CatWiseTheme.textPrimary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              onPressed: _share,
+              icon: const Icon(Icons.share_rounded),
+              label: const Text('Поделиться', style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReportRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _ReportRow({required this.label, required this.value, required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(label, style: CatWiseTheme.parentStyle)),
+          Text(value, style: CatWiseTheme.parentStyle.copyWith(fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
+  }
+}
+
+class _BlockReportRow extends StatelessWidget {
+  final String label;
+  final int done;
+  final int total;
+  final Color color;
+
+  const _BlockReportRow({required this.label, required this.done, required this.total, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final fraction = total > 0 ? done / total : 0.0;
+    final emoji = fraction >= 1.0 ? '⭐' : fraction >= 0.5 ? '🌟' : '💪';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(width: 90, child: Text(label, style: CatWiseTheme.parentStyle)),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: fraction,
+                minHeight: 12,
+                backgroundColor: color.withOpacity(0.2),
+                color: color,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text('$done/$total', style: const TextStyle(fontSize: 13, color: CatWiseTheme.textSecondary)),
+          const SizedBox(width: 4),
+          Text(emoji, style: const TextStyle(fontSize: 14)),
+        ],
       ),
     );
   }
