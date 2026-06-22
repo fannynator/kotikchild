@@ -2,5 +2,6 @@
 
 ## Rive-анимация Bouncy Cat
 - Файл: `assets/animations/bouncy_cat.riv`
+- Автор: Both-HY9KK
 - Лицензия: CC BY (Creative Commons Attribution)
 - Используется в виджете CatAvatar для отображения персонажа-кота
