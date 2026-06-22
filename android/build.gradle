@@ -1,0 +1,3 @@
+allprojects {
+    // empty - repositories configured in settings.gradle
+}
