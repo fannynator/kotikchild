@@ -71,12 +71,13 @@ class Task {
     return false;
   }
 
-  int _fuzzyThreshold(String word) {
-    final len = word.length;
-    if (len <= 3) return 0;
-    if (len <= 5) return 1;
-    return 2;
-  }
+int _fuzzyThreshold(String word) {
+  final len = word.length;
+  if (len <= 2) return 1;  // Для "му", "да", "мяу" — допуск 1 ошибка
+  if (len <= 4) return 1;  // Для "кот", "дом", "мама" — допуск 1 ошибка
+  if (len <= 6) return 2;  // Для "котёнок", "собака" — допуск 2 ошибки
+  return 3;                // Для длинных фраз — допуск 3 ошибки
+}
 
   String _normalize(String s) {
     return s
