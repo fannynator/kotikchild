@@ -98,11 +98,13 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
     switch (mood) {
       case CatMood.neutral:
         _triggerIdle?.fire();
+        _triggerIdleTail?.fire();
       case CatMood.curious:
-        _triggerIdleREar?.fire();
-        _triggerIdleLEar?.fire();
+        _triggerREarAnim?.fire();
+        _triggerLEarAnim?.fire();
       case CatMood.thinking:
         _triggerBlink?.fire();
+        _triggerIdleTail?.fire();
       case CatMood.happy:
         _triggerJump?.fire();
         _triggerTailAnim?.fire();
@@ -113,6 +115,8 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
         _triggerIdle?.fire();
       case CatMood.encouraging:
         _triggerTailAnim?.fire();
+        _triggerIdleLEar?.fire();
+        _triggerIdleREar?.fire();
     }
   }
 
