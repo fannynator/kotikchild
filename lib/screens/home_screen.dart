@@ -10,6 +10,7 @@ import '../widgets/candy_jar.dart';
 import '../widgets/plush_button.dart';
 import 'costume_shop.dart';
 import 'chat_screen.dart';
+import 'games_hub.dart';
 import 'task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -142,32 +143,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildBlockButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _BlockButton(
-            icon: Icons.auto_stories,
-            color: CatWiseTheme.softLavender,
-            onTap: () => _onBlockTap(TaskBlock.letters),
-            label: 'Буквы',
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _BlockButton(icon: Icons.auto_stories, color: CatWiseTheme.softLavender, onTap: () => _onBlockTap(TaskBlock.letters), label: 'Буквы'),
+              _BlockButton(icon: Icons.calculate_rounded, color: CatWiseTheme.mintGreen, onTap: () => _onBlockTap(TaskBlock.math), label: 'Цифры'),
+              _BlockButton(icon: Icons.public_rounded, color: CatWiseTheme.skyBlue, onTap: () => _onBlockTap(TaskBlock.world), label: 'Мир'),
+              _BlockButton(icon: Icons.auto_awesome_rounded, color: CatWiseTheme.dustyRose, onTap: () => _onChatTap(), label: 'ИИ'),
+            ],
           ),
+          const SizedBox(height: 8),
           _BlockButton(
-            icon: Icons.calculate_rounded,
+            icon: Icons.sports_esports_rounded,
             color: CatWiseTheme.mintGreen,
-            onTap: () => _onBlockTap(TaskBlock.math),
-            label: 'Цифры',
-          ),
-          _BlockButton(
-            icon: Icons.public_rounded,
-            color: CatWiseTheme.skyBlue,
-            onTap: () => _onBlockTap(TaskBlock.world),
-            label: 'Мир',
-          ),
-          _BlockButton(
-            icon: Icons.auto_awesome_rounded,
-            color: CatWiseTheme.dustyRose,
-            onTap: () => _onChatTap(),
-            label: 'ИИ',
+            onTap: () {
+              SoundService.tap();
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => const GamesHub(),
+                  transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+                  transitionDuration: CatWiseTheme.animSmooth,
+                ),
+              );
+            },
+            label: 'Игры',
           ),
         ],
       ),
