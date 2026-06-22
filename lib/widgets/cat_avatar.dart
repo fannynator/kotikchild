@@ -93,32 +93,39 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   }
 
   void _applyMood(CatMood mood) {
-    if (_riveController == null) return;
+  if (_riveController == null) return;
 
-    switch (mood) {
-      case CatMood.neutral:
-        _triggerIdle?.value = true;
-        _triggerIdleTail?.value = true;
-      case CatMood.curious:
-        _triggerREarAnim?.value = true;
-        _triggerLEarAnim?.value = true;
-      case CatMood.thinking:
-        _triggerBlink?.value = true;
-        _triggerIdleTail?.value = true;
-      case CatMood.happy:
-        _triggerJump?.value = true;
-        _triggerTailAnim?.value = true;
-      case CatMood.celebrating:
-        _triggerJump?.value = true;
-        _triggerTailAnim?.value = true;
-      case CatMood.shrugging:
-        _triggerIdle?.value = true;
-      case CatMood.encouraging:
-        _triggerTailAnim?.value = true;
-        _triggerIdleLEar?.value = true;
-        _triggerIdleREar?.value = true;
-    }
+  switch (mood) {
+    case CatMood.neutral:
+      _triggerIdle?.change(true);
+      _triggerIdleTail?.change(true);
+      break;
+    case CatMood.curious:
+      _triggerREarAnim?.change(true);
+      _triggerLEarAnim?.change(true);
+      break;
+    case CatMood.thinking:
+      _triggerBlink?.change(true);
+      _triggerIdleTail?.change(true);
+      break;
+    case CatMood.happy:
+      _triggerJump?.change(true);
+      _triggerTailAnim?.change(true);
+      break;
+    case CatMood.celebrating:
+      _triggerJump?.change(true);
+      _triggerTailAnim?.change(true);
+      break;
+    case CatMood.shrugging:
+      _triggerIdle?.change(true);
+      break;
+    case CatMood.encouraging:
+      _triggerTailAnim?.change(true);
+      _triggerIdleLEar?.change(true);
+      _triggerIdleREar?.change(true);
+      break;
   }
+}
 
   @override
   Widget build(BuildContext context) {
