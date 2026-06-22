@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
+import '../data/task_repository.dart';
 import '../models/task.dart';
 import '../models/pet.dart';
 import '../services/voice_service.dart';
@@ -51,96 +52,9 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
   }
 
   void _loadTasks() {
-    _sessionTasks.addAll(_buildTasksForBlock(widget.block));
-    _sessionTasks.shuffle();
+    _sessionTasks.addAll(TaskRepository.session(widget.block));
     if (_sessionTasks.isNotEmpty) {
       _currentTask = _sessionTasks.first;
-    }
-  }
-
-  List<Task> _buildTasksForBlock(TaskBlock block) {
-    final tasks = <Task>[];
-    for (var i = 0; i < 5; i++) {
-      tasks.add(Task(
-        id: '${block.name}_demo_$i',
-        block: block,
-        type: TaskType.nameLetter,
-        difficulty: 1,
-        prompt: _getPromptForBlock(block, i),
-        correctAnswerRaw: _getAnswerForBlock(block, i),
-        acceptedAnswers: _getAcceptedForBlock(block, i),
-        hint: 'Посмотри внимательно, я тебе помогу!',
-      ));
-    }
-    return tasks;
-  }
-
-  String _getPromptForBlock(TaskBlock block, int index) {
-    switch (block) {
-      case TaskBlock.letters:
-        return const [
-          'Назови букву, которую видишь',
-          'Какой звук даёт буква А?',
-          'Придумай слово на букву М',
-          'Хлопни, когда услышишь звук С',
-          'Это твёрдый или мягкий звук?',
-        ][index % 5];
-      case TaskBlock.math:
-        return const [
-          'Посчитай, сколько предметов',
-          'Сколько будет два плюс три?',
-          'Какое число больше: пять или три?',
-          'Кто соседи числа четыре?',
-          'Продолжи ряд: один, два, три...',
-        ][index % 5];
-      case TaskBlock.world:
-        return const [
-          'Кто как говорит? Корова говорит...',
-          'Назови детёныша кошки',
-          'Что лишнее: яблоко, груша, тапок?',
-          'Опиши этот предмет',
-          'Какое сейчас время года?',
-        ][index % 5];
-    }
-  }
-
-  String _getAnswerForBlock(TaskBlock block, int index) {
-    switch (block) {
-      case TaskBlock.letters:
-        return const ['а', 'а', 'мама', 'хлоп', 'твёрдый'][index % 5];
-      case TaskBlock.math:
-        return const ['5', 'пять', 'пять', '3 и 5', 'четыре'][index % 5];
-      case TaskBlock.world:
-        return const ['му', 'котёнок', 'тапок', 'круглый', 'лето'][index % 5];
-    }
-  }
-
-  List<String> _getAcceptedForBlock(TaskBlock block, int index) {
-    switch (block) {
-      case TaskBlock.letters:
-        return [
-          ['а', 'буква а', 'ааа'],
-          ['а', 'звук а', 'аа'],
-          ['мама', 'на м', 'м'],
-          ['хлоп', 'хлопаю', 'слышу'],
-          ['твёрдый', 'твердый'],
-        ][index % 5];
-      case TaskBlock.math:
-        return [
-          ['5', 'пять'],
-          ['пять', '5'],
-          ['пять', '5', 'больше пять'],
-          ['3 и 5', 'три и пять', 'три пять'],
-          ['четыре', '4'],
-        ][index % 5];
-      case TaskBlock.world:
-        return [
-          ['му', 'муу', 'мычит'],
-          ['котёнок', 'котенок', 'кошка'],
-          ['тапок', 'тапочки'],
-          ['круглый', 'круглое'],
-          ['лето', 'весна'],
-        ][index % 5];
     }
   }
 
