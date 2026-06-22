@@ -93,40 +93,32 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   }
 
   void _applyMood(CatMood mood) {
-  void _applyMood(CatMood mood) {
-  if (_riveController == null) return;
+    if (_riveController == null) return;
 
-  switch (mood) {
-    case CatMood.neutral:
-      _triggerIdle?.change(SMITrigger.fire);
-      _triggerIdleTail?.change(SMITrigger.fire);
-      break;
-    case CatMood.curious:
-      _triggerREarAnim?.change(SMITrigger.fire);
-      _triggerLEarAnim?.change(SMITrigger.fire);
-      break;
-    case CatMood.thinking:
-      _triggerBlink?.change(SMITrigger.fire);
-      _triggerIdleTail?.change(SMITrigger.fire);
-      break;
-    case CatMood.happy:
-      _triggerJump?.change(SMITrigger.fire);
-      _triggerTailAnim?.change(SMITrigger.fire);
-      break;
-    case CatMood.celebrating:
-      _triggerJump?.change(SMITrigger.fire);
-      _triggerTailAnim?.change(SMITrigger.fire);
-      break;
-    case CatMood.shrugging:
-      _triggerIdle?.change(SMITrigger.fire);
-      break;
-    case CatMood.encouraging:
-      _triggerTailAnim?.change(SMITrigger.fire);
-      _triggerIdleLEar?.change(SMITrigger.fire);
-      _triggerIdleREar?.change(SMITrigger.fire);
-      break;
+    switch (mood) {
+      case CatMood.neutral:
+        _triggerIdle?.change(SMITrigger.fire);
+        _triggerIdleTail?.change(SMITrigger.fire);
+      case CatMood.curious:
+        _triggerREarAnim?.change(SMITrigger.fire);
+        _triggerLEarAnim?.change(SMITrigger.fire);
+      case CatMood.thinking:
+        _triggerBlink?.change(SMITrigger.fire);
+        _triggerIdleTail?.change(SMITrigger.fire);
+      case CatMood.happy:
+        _triggerJump?.change(SMITrigger.fire);
+        _triggerTailAnim?.change(SMITrigger.fire);
+      case CatMood.celebrating:
+        _triggerJump?.change(SMITrigger.fire);
+        _triggerTailAnim?.change(SMITrigger.fire);
+      case CatMood.shrugging:
+        _triggerIdle?.change(SMITrigger.fire);
+      case CatMood.encouraging:
+        _triggerTailAnim?.change(SMITrigger.fire);
+        _triggerIdleLEar?.change(SMITrigger.fire);
+        _triggerIdleREar?.change(SMITrigger.fire);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
