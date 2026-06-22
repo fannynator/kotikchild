@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
@@ -266,18 +267,27 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
                         : -1),
             0,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CatAvatar(
-                mood: mood,
-                size: 200,
-                showEars: true,
-                isHugging: mood == CatMood.celebrating,
-              ),
-              const SizedBox(height: 20),
-              _buildSpeechBubble(),
-            ],
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(CatWiseTheme.plushRadius),
+              boxShadow: CatWiseTheme.plushShadow,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CatAvatar(
+                  mood: mood,
+                  size: 240,
+                  showEars: true,
+                  isHugging: mood == CatMood.celebrating,
+                ),
+                const SizedBox(height: 16),
+                _buildSpeechBubble(),
+              ],
+            ),
           ),
         );
       },
@@ -327,7 +337,13 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
 
   Widget _buildMicButton() {
     return GestureDetector(
-      onTapDown: (_) => _startListening(),
+      onLongPressStart: (_) {
+        HapticFeedback.mediumImpact();
+        _startListening();
+      },
+      onLongPressEnd: (_) {
+        _voice.stop();
+      },
       child: AnimatedBuilder(
         animation: _micPulse,
         builder: (context, child) {
@@ -336,22 +352,22 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
           return Transform.scale(
             scale: pulse,
             child: Container(
-              width: 88,
-              height: 88,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _isListening ? CatWiseTheme.errorPeach : CatWiseTheme.pastelPeach,
                 boxShadow: [
                   BoxShadow(
                     color: (_isListening ? CatWiseTheme.errorPeach : CatWiseTheme.warmHoney).withOpacity(0.3),
-                    blurRadius: 20,
-                    spreadRadius: 2,
+                    blurRadius: 24,
+                    spreadRadius: 3,
                   ),
                 ],
               ),
               child: Icon(
                 Icons.mic_rounded,
-                size: 44,
+                size: 48,
                 color: _isListening ? Colors.white : CatWiseTheme.textPrimary,
               ),
             ),

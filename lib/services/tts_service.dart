@@ -6,8 +6,8 @@ class TtsService extends ChangeNotifier {
   final FlutterTts _tts = FlutterTts();
   bool _isReady = false;
   bool _isSpeaking = false;
-  double _speed = 0.45;
-  double _basePitch = 1.5;
+  double _speed = 0.35;
+  double _basePitch = 1.6;
   Completer<void>? _speakCompleter;
 
   bool get isReady => _isReady;
@@ -110,17 +110,17 @@ class TtsService extends ChangeNotifier {
 
   Future<void> speakPraise() async {
     _praisePhrases.shuffle();
-    await speak(_praisePhrases.first, pitchOverride: 1.7);
+    await speak(_praisePhrases.first, pitchOverride: 1.8);
   }
 
   Future<void> speakEncourage() async {
     _encouragePhrases.shuffle();
-    await speak(_encouragePhrases.first, pitchOverride: 1.3);
+    await speak(_encouragePhrases.first, pitchOverride: 1.4);
   }
 
   Future<void> speakHint() async {
     _hintPhrases.shuffle();
-    await speak(_hintPhrases.first, pitchOverride: 1.3);
+    await speak(_hintPhrases.first, pitchOverride: 1.4);
   }
 
   Future<void> stop() async {
