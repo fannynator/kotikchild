@@ -27,13 +27,14 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   late final AnimationController _hugController;
   StateMachineController? _riveController;
 
-  SMINumber? _moodNumber;
-  SMIBool? _boolHappy;
-  SMIBool? _boolThinking;
-  SMIBool? _boolCelebrating;
-  SMIBool? _boolShrugging;
-  SMIBool? _boolListening;
-  SMIBool? _boolEncouraging;
+  SMITrigger? _triggerBlink;
+  SMITrigger? _triggerJump;
+  SMITrigger? _triggerTailAnim;
+  SMITrigger? _triggerIdleTail;
+  SMITrigger? _triggerREarAnim;
+  SMITrigger? _triggerIdleREar;
+  SMITrigger? _triggerLEarAnim;
+  SMITrigger? _triggerIdleLEar;
   SMITrigger? _triggerIdle;
 
   @override
@@ -80,47 +81,38 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   }
 
   void _cacheInputs(StateMachineController controller) {
-    _moodNumber = controller.findInput<double>('mood');
-    _boolHappy = controller.findInput<bool>('happy');
-    _boolThinking = controller.findInput<bool>('thinking');
-    _boolCelebrating = controller.findInput<bool>('celebrating');
-    _boolShrugging = controller.findInput<bool>('shrugging');
-    _boolListening = controller.findInput<bool>('listening');
-    _boolEncouraging = controller.findInput<bool>('encouraging');
+    _triggerBlink = controller.findInput<SMITrigger>('blink');
+    _triggerJump = controller.findInput<SMITrigger>('jump');
+    _triggerTailAnim = controller.findInput<SMITrigger>('tail_an');
+    _triggerIdleTail = controller.findInput<SMITrigger>('idle_tail');
+    _triggerREarAnim = controller.findInput<SMITrigger>('R_ear_an');
+    _triggerIdleREar = controller.findInput<SMITrigger>('idle_R_ear');
+    _triggerLEarAnim = controller.findInput<SMITrigger>('L_ear_an');
+    _triggerIdleLEar = controller.findInput<SMITrigger>('edle_L_ear');
     _triggerIdle = controller.findInput<SMITrigger>('idle');
   }
 
   void _applyMood(CatMood mood) {
     if (_riveController == null) return;
 
-    _boolHappy?.value = false;
-    _boolThinking?.value = false;
-    _boolCelebrating?.value = false;
-    _boolShrugging?.value = false;
-    _boolListening?.value = false;
-    _boolEncouraging?.value = false;
-
-    if (_moodNumber != null) {
-      _moodNumber!.value = mood.index.toDouble();
-      return;
-    }
-
     switch (mood) {
       case CatMood.neutral:
         _triggerIdle?.fire();
       case CatMood.curious:
-        _boolListening?.value = true;
+        _triggerIdleREar?.fire();
+        _triggerIdleLEar?.fire();
       case CatMood.thinking:
-        _boolThinking?.value = true;
+        _triggerBlink?.fire();
       case CatMood.happy:
-        _boolHappy?.value = true;
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
       case CatMood.celebrating:
-        _boolCelebrating?.value = true;
-        _boolHappy?.value = true;
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
       case CatMood.shrugging:
-        _boolShrugging?.value = true;
+        _triggerIdle?.fire();
       case CatMood.encouraging:
-        _boolEncouraging?.value = true;
+        _triggerTailAnim?.fire();
     }
   }
 
