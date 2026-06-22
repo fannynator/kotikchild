@@ -6,6 +6,7 @@ import '../core/theme.dart';
 import '../core/constants.dart';
 import '../models/user.dart';
 import '../services/tts_service.dart';
+import '../services/sound_service.dart';
 import '../widgets/cat_avatar.dart';
 import '../widgets/plush_button.dart';
 
@@ -44,6 +45,7 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
       _confetti.play();
       _hugController.forward();
       _starController.forward();
+      SoundService.star();
       if (mounted) {
         setState(() => _showStars = true);
       }

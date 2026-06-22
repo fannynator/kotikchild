@@ -9,6 +9,7 @@ import '../models/task.dart';
 import '../models/pet.dart';
 import '../services/voice_service.dart';
 import '../services/tts_service.dart';
+import '../services/sound_service.dart';
 import '../widgets/cat_avatar.dart';
 import '../widgets/star_counter.dart';
 import 'reward_screen.dart';
@@ -133,6 +134,7 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
     _starsEarned += 1;
     _taskDone = true;
 
+    SoundService.correct();
     setState(() => _catMood = CatMood.celebrating);
 
     await _tts.speakPraise();
@@ -160,6 +162,7 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
 
   Future<void> _handleWrong(Task task, String answer) async {
     _wrongInRow++;
+    SoundService.wrong();
 
     if (_wrongInRow >= AppConstants.maxWrongBeforeHint) {
       setState(() => _catMood = CatMood.encouraging);

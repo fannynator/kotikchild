@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 import '../models/pet.dart';
 import '../services/tts_service.dart';
+import '../services/sound_service.dart';
 
 class UserProgress extends ChangeNotifier {
   double totalStars;
@@ -48,6 +49,7 @@ class UserProgress extends ChangeNotifier {
     while (totalStars >= AppConstants.starsPerCandy) {
       totalStars -= AppConstants.starsPerCandy;
       totalCandies++;
+      SoundService.candy();
       tts.speak('Мяу! Ты заработал конфету!');
     }
 
@@ -61,6 +63,7 @@ class UserProgress extends ChangeNotifier {
         totalCandies -= AppConstants.candiesPerReward;
         ownedCostumes = [...ownedCostumes, randomCostume.id];
         activeCostume = randomCostume.id;
+        SoundService.hat();
         tts.speak('Ура! Новая шляпа для меня!');
       }
     }

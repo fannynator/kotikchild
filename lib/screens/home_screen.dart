@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
 import '../services/tts_service.dart';
+import '../services/sound_service.dart';
 import '../widgets/cat_avatar.dart';
 import '../widgets/star_counter.dart';
 import '../widgets/candy_jar.dart';
@@ -50,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _onBlockTap(TaskBlock block) {
+    SoundService.tap();
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => TaskScreen(block: block),
