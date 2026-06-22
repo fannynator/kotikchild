@@ -25,6 +25,17 @@ class CatAvatar extends StatefulWidget {
 
 class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMixin {
   late final AnimationController _hugController;
+  StateMachineController? _riveController;
+
+  SMITrigger? _triggerBlink;
+  SMITrigger? _triggerJump;
+  SMITrigger? _triggerTailAnim;
+  SMITrigger? _triggerIdleTail;
+  SMITrigger? _triggerREarAnim;
+  SMITrigger? _triggerIdleREar;
+  SMITrigger? _triggerLEarAnim;
+  SMITrigger? _triggerIdleLEar;
+  SMITrigger? _triggerIdle;
 
   @override
   void initState() {
@@ -44,12 +55,69 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
     } else if (!widget.isHugging && old.isHugging) {
       _hugController.reverse();
     }
+    if (widget.mood != old.mood) {
+      _applyMood(widget.mood);
+    }
   }
 
   @override
   void dispose() {
     _hugController.dispose();
+    _riveController?.dispose();
     super.dispose();
+  }
+
+  void _onRiveInit(Artboard artboard) {
+    final controller = StateMachineController.fromArtboard(
+      artboard,
+      'State Machine 1',
+    );
+    if (controller != null) {
+      artboard.addController(controller);
+      _riveController = controller;
+      _cacheInputs();
+      _applyMood(widget.mood);
+    }
+  }
+
+  void _cacheInputs() {
+    _triggerBlink = _riveController?.getTriggerInput('blink');
+    _triggerJump = _riveController?.getTriggerInput('jump');
+    _triggerTailAnim = _riveController?.getTriggerInput('tail_an');
+    _triggerIdleTail = _riveController?.getTriggerInput('idle_tail');
+    _triggerREarAnim = _riveController?.getTriggerInput('R_ear_an');
+    _triggerIdleREar = _riveController?.getTriggerInput('idle_R_ear');
+    _triggerLEarAnim = _riveController?.getTriggerInput('L_ear_an');
+    _triggerIdleLEar = _riveController?.getTriggerInput('edle_L_ear');
+    _triggerIdle = _riveController?.getTriggerInput('idle');
+  }
+
+  void _applyMood(CatMood mood) {
+    if (_riveController == null) return;
+
+    switch (mood) {
+      case CatMood.neutral:
+        _triggerIdle?.fire();
+        _triggerIdleTail?.fire();
+      case CatMood.curious:
+        _triggerREarAnim?.fire();
+        _triggerLEarAnim?.fire();
+      case CatMood.thinking:
+        _triggerBlink?.fire();
+        _triggerIdleTail?.fire();
+      case CatMood.happy:
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
+      case CatMood.celebrating:
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
+      case CatMood.shrugging:
+        _triggerIdle?.fire();
+      case CatMood.encouraging:
+        _triggerTailAnim?.fire();
+        _triggerIdleLEar?.fire();
+        _triggerIdleREar?.fire();
+    }
   }
 
   @override
@@ -69,6 +137,7 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
                 child: RiveAnimation.asset(
                   'assets/animations/bouncy_cat.riv',
                   fit: BoxFit.contain,
+                  onInit: _onRiveInit,
                   placeHolder: const Center(
                     child: CircularProgressIndicator(
                       color: CatWiseTheme.warmHoney,
