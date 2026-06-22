@@ -7,6 +7,7 @@ class TtsService extends ChangeNotifier {
   bool _isReady = false;
   bool _isSpeaking = false;
   double _speed = 0.45;
+  double _basePitch = 1.5;
   Completer<void>? _speakCompleter;
 
   bool get isReady => _isReady;
@@ -38,8 +39,30 @@ class TtsService extends ChangeNotifier {
     try {
       await _tts.setLanguage('ru-RU');
       await _tts.setSpeechRate(_speed);
-      await _tts.setPitch(1.2);
+      await _tts.setPitch(_basePitch);
       await _tts.setVolume(0.9);
+
+      try {
+        final voices = await _tts.getVoices;
+        if (voices != null && voices.isNotEmpty) {
+          final ruVoices = voices.where((v) {
+            final locale = (v['locale'] ?? '').toString().toLowerCase();
+            return locale.startsWith('ru');
+          }).toList();
+
+          if (ruVoices.isNotEmpty) {
+            final femaleVoice = ruVoices.firstWhere(
+              (_) => true,
+              orElse: () => ruVoices.first,
+            );
+            await _tts.setVoice(femaleVoice);
+            debugPrint('TTS voice set: ${femaleVoice['name']}');
+          }
+        }
+      } catch (_) {
+        debugPrint('TTS voice selection skipped — using system default');
+      }
+
       _isReady = true;
       notifyListeners();
     } catch (e) {
@@ -55,8 +78,14 @@ class TtsService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> speak(String text) async {
+  Future<void> speak(String text, {double? pitchOverride}) async {
     if (!_isReady) return;
+
+    if (pitchOverride != null) {
+      await _tts.setPitch(pitchOverride);
+    } else if (_basePitch != 1.5) {
+      await _tts.setPitch(_basePitch);
+    }
 
     _isSpeaking = true;
     _speakCompleter = Completer<void>();
@@ -71,22 +100,27 @@ class TtsService extends ChangeNotifier {
     _isSpeaking = false;
     _speakCompleter?.complete();
     _speakCompleter = null;
+
+    if (pitchOverride != null) {
+      await _tts.setPitch(_basePitch);
+    }
+
     notifyListeners();
   }
 
   Future<void> speakPraise() async {
     _praisePhrases.shuffle();
-    await speak(_praisePhrases.first);
+    await speak(_praisePhrases.first, pitchOverride: 1.7);
   }
 
   Future<void> speakEncourage() async {
     _encouragePhrases.shuffle();
-    await speak(_encouragePhrases.first);
+    await speak(_encouragePhrases.first, pitchOverride: 1.3);
   }
 
   Future<void> speakHint() async {
     _hintPhrases.shuffle();
-    await speak(_hintPhrases.first);
+    await speak(_hintPhrases.first, pitchOverride: 1.3);
   }
 
   Future<void> stop() async {
