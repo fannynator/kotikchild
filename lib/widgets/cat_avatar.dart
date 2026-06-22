@@ -93,36 +93,37 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   }
 
   void _applyMood(CatMood mood) {
+  void _applyMood(CatMood mood) {
   if (_riveController == null) return;
 
   switch (mood) {
     case CatMood.neutral:
-      _triggerIdle?.change(true);
-      _triggerIdleTail?.change(true);
+      _triggerIdle?.change(SMITrigger.fire);
+      _triggerIdleTail?.change(SMITrigger.fire);
       break;
     case CatMood.curious:
-      _triggerREarAnim?.change(true);
-      _triggerLEarAnim?.change(true);
+      _triggerREarAnim?.change(SMITrigger.fire);
+      _triggerLEarAnim?.change(SMITrigger.fire);
       break;
     case CatMood.thinking:
-      _triggerBlink?.change(true);
-      _triggerIdleTail?.change(true);
+      _triggerBlink?.change(SMITrigger.fire);
+      _triggerIdleTail?.change(SMITrigger.fire);
       break;
     case CatMood.happy:
-      _triggerJump?.change(true);
-      _triggerTailAnim?.change(true);
+      _triggerJump?.change(SMITrigger.fire);
+      _triggerTailAnim?.change(SMITrigger.fire);
       break;
     case CatMood.celebrating:
-      _triggerJump?.change(true);
-      _triggerTailAnim?.change(true);
+      _triggerJump?.change(SMITrigger.fire);
+      _triggerTailAnim?.change(SMITrigger.fire);
       break;
     case CatMood.shrugging:
-      _triggerIdle?.change(true);
+      _triggerIdle?.change(SMITrigger.fire);
       break;
     case CatMood.encouraging:
-      _triggerTailAnim?.change(true);
-      _triggerIdleLEar?.change(true);
-      _triggerIdleREar?.change(true);
+      _triggerTailAnim?.change(SMITrigger.fire);
+      _triggerIdleLEar?.change(SMITrigger.fire);
+      _triggerIdleREar?.change(SMITrigger.fire);
       break;
   }
 }
