@@ -21,6 +21,8 @@ class UserProgress extends ChangeNotifier {
   Map<String, int> blockProgress;
   Map<String, int> soundAccuracy;
   int totalMinutesPlayed;
+  int minutesPlayedToday;
+  DateTime? lastSessionDate;
   List<String> completedTaskIds;
 
   UserProgress({
@@ -37,6 +39,8 @@ class UserProgress extends ChangeNotifier {
     this.blockProgress = const {},
     this.soundAccuracy = const {},
     this.totalMinutesPlayed = 0,
+    this.minutesPlayedToday = 0,
+    this.lastSessionDate,
     this.completedTaskIds = const [],
   });
 
@@ -109,6 +113,26 @@ class UserProgress extends ChangeNotifier {
     lastPlayedDate = today;
   }
 
+  void addPlayedMinute() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (lastSessionDate != null) {
+      final lastDay = DateTime(lastSessionDate!.year, lastSessionDate!.month, lastSessionDate!.day);
+      if (today != lastDay) {
+        minutesPlayedToday = 0;
+      }
+    }
+
+    minutesPlayedToday++;
+    totalMinutesPlayed++;
+    lastSessionDate = today;
+  }
+
+  bool isTimeLimitReached(int dailyLimitMinutes) {
+    return minutesPlayedToday >= dailyLimitMinutes;
+  }
+
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble('totalStars', totalStars);
@@ -120,6 +144,8 @@ class UserProgress extends ChangeNotifier {
     prefs.setStringList('ownedCostumes', ownedCostumes);
     prefs.setString('activeCostume', activeCostume);
     prefs.setInt('totalMinutesPlayed', totalMinutesPlayed);
+    prefs.setInt('minutesPlayedToday', minutesPlayedToday);
+    prefs.setString('lastSessionDate', lastSessionDate?.toIso8601String() ?? '');
     prefs.setString('completedTaskIds', jsonEncode(completedTaskIds));
     prefs.setString('blockProgress', jsonEncode(blockProgress));
   }
@@ -138,6 +164,10 @@ class UserProgress extends ChangeNotifier {
       ownedCostumes: prefs.getStringList('ownedCostumes') ?? ['default_hat'],
       activeCostume: prefs.getString('activeCostume') ?? 'default_hat',
       totalMinutesPlayed: prefs.getInt('totalMinutesPlayed') ?? 0,
+      minutesPlayedToday: prefs.getInt('minutesPlayedToday') ?? 0,
+      lastSessionDate: prefs.getString('lastSessionDate') != null
+          ? DateTime.parse(prefs.getString('lastSessionDate')!)
+          : null,
       completedTaskIds: _parseJsonList(prefs.getString('completedTaskIds')),
       blockProgress: _parseJsonMap(prefs.getString('blockProgress')),
     );

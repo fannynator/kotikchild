@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'core/theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/parent_dashboard.dart';
+import 'widgets/time_limit_gate.dart';
 
 class CatWiseApp extends StatelessWidget {
   const CatWiseApp({super.key});
@@ -58,7 +59,9 @@ class _AppShellState extends State<_AppShell> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: _onLogoLongPress,
-      child: const HomeScreen(),
+      child: const TimeLimitGate(
+        child: HomeScreen(),
+      ),
     );
   }
 }

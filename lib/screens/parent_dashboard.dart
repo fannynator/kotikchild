@@ -392,7 +392,13 @@ class _SettingsTabState extends State<_SettingsTab> {
     super.dispose();
   }
 
-  void _save() {
+  void _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('dailyTimeLimitMinutes', _timeLimit.round());
+    prefs.setBool('soundEffectsEnabled', _soundEnabled);
+    prefs.setInt('voiceSpeed', _voiceSpeed.round());
+    prefs.setString('childName', _nameController.text);
+
     widget.onChanged(widget.settings.copyWith(
       dailyTimeLimitMinutes: _timeLimit.round(),
       soundEffectsEnabled: _soundEnabled,
