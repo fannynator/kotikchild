@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 import '../models/pet.dart';
 import '../services/tts_service.dart';
@@ -41,6 +43,8 @@ class UserProgress extends ChangeNotifier {
     totalStars += amount;
     tasksCompleted++;
 
+    _updateStreak();
+
     while (totalStars >= AppConstants.starsPerCandy) {
       totalStars -= AppConstants.starsPerCandy;
       totalCandies++;
@@ -62,6 +66,83 @@ class UserProgress extends ChangeNotifier {
     }
 
     notifyListeners();
+    save();
+  }
+
+  void _updateStreak() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (lastPlayedDate != null) {
+      final lastDay = DateTime(lastPlayedDate!.year, lastPlayedDate!.month, lastPlayedDate!.day);
+      final diff = today.difference(lastDay).inDays;
+
+      if (diff == 1) {
+        currentStreak++;
+      } else if (diff > 1) {
+        currentStreak = 1;
+      }
+    } else {
+      currentStreak = 1;
+    }
+
+    if (currentStreak > longestStreak) {
+      longestStreak = currentStreak;
+    }
+
+    lastPlayedDate = today;
+  }
+
+  Future<void> save() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('totalStars', totalStars);
+    prefs.setInt('totalCandies', totalCandies);
+    prefs.setInt('tasksCompleted', tasksCompleted);
+    prefs.setInt('currentStreak', currentStreak);
+    prefs.setInt('longestStreak', longestStreak);
+    prefs.setString('lastPlayedDate', lastPlayedDate?.toIso8601String() ?? '');
+    prefs.setStringList('ownedCostumes', ownedCostumes);
+    prefs.setString('activeCostume', activeCostume);
+    prefs.setInt('totalMinutesPlayed', totalMinutesPlayed);
+    prefs.setString('completedTaskIds', jsonEncode(completedTaskIds));
+    prefs.setString('blockProgress', jsonEncode(blockProgress));
+  }
+
+  static Future<UserProgress> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastDateStr = prefs.getString('lastPlayedDate') ?? '';
+
+    return UserProgress(
+      totalStars: prefs.getDouble('totalStars') ?? 0.0,
+      totalCandies: prefs.getInt('totalCandies') ?? 0,
+      tasksCompleted: prefs.getInt('tasksCompleted') ?? 0,
+      currentStreak: prefs.getInt('currentStreak') ?? 0,
+      longestStreak: prefs.getInt('longestStreak') ?? 0,
+      lastPlayedDate: lastDateStr.isNotEmpty ? DateTime.parse(lastDateStr) : null,
+      ownedCostumes: prefs.getStringList('ownedCostumes') ?? ['default_hat'],
+      activeCostume: prefs.getString('activeCostume') ?? 'default_hat',
+      totalMinutesPlayed: prefs.getInt('totalMinutesPlayed') ?? 0,
+      completedTaskIds: _parseJsonList(prefs.getString('completedTaskIds')),
+      blockProgress: _parseJsonMap(prefs.getString('blockProgress')),
+    );
+  }
+
+  static List<String> _parseJsonList(String? json) {
+    if (json == null || json.isEmpty) return [];
+    try {
+      return List<String>.from(jsonDecode(json) as List);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Map<String, int> _parseJsonMap(String? json) {
+    if (json == null || json.isEmpty) return {};
+    try {
+      return Map<String, int>.from(jsonDecode(json) as Map);
+    } catch (_) {
+      return {};
+    }
   }
 
   int get starsProgressInBlock => totalStars.toInt() % AppConstants.starsPerCandy;

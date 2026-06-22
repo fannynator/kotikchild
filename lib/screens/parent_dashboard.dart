@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../core/theme.dart';
 import '../core/constants.dart';
 import '../models/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ParentGate extends StatefulWidget {
   final Widget child;
@@ -131,37 +131,12 @@ class ParentDashboard extends StatefulWidget {
 
 class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  UserProgress? _progress;
   ParentSettings _settings = const ParentSettings();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final progressJson = prefs.getString('user_progress');
-    final settingsJson = prefs.getString('parent_settings');
-
-    if (mounted) {
-      setState(() {
-        if (progressJson != null) {
-          _progress = UserProgress.fromJson(
-            // ignore: use_build_context_synchronously
-            Uri.parse('?$progressJson').queryParametersAll.map((k, v) => MapEntry(k, v.first)),
-          );
-        }
-        if (settingsJson != null) {
-          _settings = ParentSettings.fromJson(
-            // ignore: use_build_context_synchronously
-            Uri.parse('?$settingsJson').queryParametersAll.map((k, v) => MapEntry(k, v.first)),
-          );
-        }
-      });
-    }
   }
 
   @override
@@ -194,9 +169,9 @@ class _ParentDashboardState extends State<ParentDashboard> with SingleTickerProv
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _ProgressTab(progress: _progress),
+                  _ProgressTab(progress: context.watch<UserProgress>()),
                   _SettingsTab(settings: _settings, onChanged: _updateSettings),
-                  _ReportsTab(progress: _progress),
+                  _ReportsTab(progress: context.watch<UserProgress>()),
                 ],
               ),
             ),

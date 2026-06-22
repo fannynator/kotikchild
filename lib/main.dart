@@ -23,7 +23,7 @@ void main() async {
 
   final voiceService = VoiceService();
   final ttsService = TtsService();
-  final userProgress = UserProgress();
+  final userProgress = await UserProgress.load();
 
   await Future.wait([
     voiceService.initialize(),
