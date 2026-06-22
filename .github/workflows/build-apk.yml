@@ -18,9 +18,16 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
-          channel: stable
+          flutter-version: '3.22.3'
           cache: true
+
+      - run: rm -rf android
+      - run: flutter create --platforms=android --org com.catwise .
+      - run: rm -f test/widget_test.dart
+
+      - run: |
+          echo 'android.newDsl=false' >> android/gradle.properties
+          sed -i 's/repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)/repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)/' android/settings.gradle
 
       - run: flutter pub get
 
