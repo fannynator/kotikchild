@@ -25,7 +25,16 @@ class CatAvatar extends StatefulWidget {
 
 class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMixin {
   late final AnimationController _hugController;
-  String _lastSmName = '';
+  StateMachineController? _riveController;
+
+  SMINumber? _moodNumber;
+  SMIBool? _boolHappy;
+  SMIBool? _boolThinking;
+  SMIBool? _boolCelebrating;
+  SMIBool? _boolShrugging;
+  SMIBool? _boolListening;
+  SMIBool? _boolEncouraging;
+  SMITrigger? _triggerIdle;
 
   @override
   void initState() {
@@ -45,49 +54,78 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
     } else if (!widget.isHugging && old.isHugging) {
       _hugController.reverse();
     }
+    if (widget.mood != old.mood) {
+      _applyMood(widget.mood);
+    }
   }
 
   @override
   void dispose() {
     _hugController.dispose();
+    _riveController?.dispose();
     super.dispose();
   }
 
-  String _stateMachineFor(CatMood mood) {
-    switch (mood) {
-      case CatMood.neutral:
-        return 'idle';
-      case CatMood.curious:
-        return 'listening';
-      case CatMood.thinking:
-        return 'thinking';
-      case CatMood.happy:
-        return 'happy';
-      case CatMood.celebrating:
-        return 'celebrating';
-      case CatMood.shrugging:
-        return 'shrugging';
-      case CatMood.encouraging:
-        return 'encouraging';
+  void _onRiveInit(Artboard artboard) {
+    final controller = StateMachineController.fromArtboard(
+      artboard,
+      'State Machine 1',
+    );
+    if (controller != null) {
+      artboard.addController(controller);
+      _riveController = controller;
+      _cacheInputs(controller);
+      _applyMood(widget.mood);
     }
   }
 
-  String _fallbackStateMachine(String preferred) {
-    const fallbacks = ['idle', 'happy', 'idle', 'idle', 'happy', 'idle', 'happy'];
-    const names = ['idle', 'listening', 'thinking', 'happy', 'celebrating', 'shrugging', 'encouraging'];
-    final idx = names.indexOf(preferred);
-    if (idx >= 0 && idx < fallbacks.length) {
-      return fallbacks[idx];
+  void _cacheInputs(StateMachineController controller) {
+    _moodNumber = controller.findInput<double>('mood');
+    _boolHappy = controller.findInput<bool>('happy');
+    _boolThinking = controller.findInput<bool>('thinking');
+    _boolCelebrating = controller.findInput<bool>('celebrating');
+    _boolShrugging = controller.findInput<bool>('shrugging');
+    _boolListening = controller.findInput<bool>('listening');
+    _boolEncouraging = controller.findInput<bool>('encouraging');
+    _triggerIdle = controller.findInput<SMITrigger>('idle');
+  }
+
+  void _applyMood(CatMood mood) {
+    if (_riveController == null) return;
+
+    _boolHappy?.value = false;
+    _boolThinking?.value = false;
+    _boolCelebrating?.value = false;
+    _boolShrugging?.value = false;
+    _boolListening?.value = false;
+    _boolEncouraging?.value = false;
+
+    if (_moodNumber != null) {
+      _moodNumber!.value = mood.index.toDouble();
+      return;
     }
-    return 'idle';
+
+    switch (mood) {
+      case CatMood.neutral:
+        _triggerIdle?.fire();
+      case CatMood.curious:
+        _boolListening?.value = true;
+      case CatMood.thinking:
+        _boolThinking?.value = true;
+      case CatMood.happy:
+        _boolHappy?.value = true;
+      case CatMood.celebrating:
+        _boolCelebrating?.value = true;
+        _boolHappy?.value = true;
+      case CatMood.shrugging:
+        _boolShrugging?.value = true;
+      case CatMood.encouraging:
+        _boolEncouraging?.value = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final smName = _stateMachineFor(widget.mood);
-    final effectiveSm = smName != _lastSmName ? smName : _lastSmName;
-    _lastSmName = smName;
-
     final hugScale = 1.0 + 0.2 * _hugController.value;
 
     return SizedBox(
@@ -100,10 +138,16 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
             children: [
               Transform.scale(
                 scale: hugScale,
-                child: _RiveCat(
-                  key: ValueKey('cat_${widget.mood.name}'),
-                  stateMachineName: effectiveSm,
-                  fallbackSm: _fallbackStateMachine(effectiveSm),
+                child: RiveAnimation.asset(
+                  'assets/animations/bouncy_cat.riv',
+                  fit: BoxFit.contain,
+                  onInit: _onRiveInit,
+                  placeHolder: const Center(
+                    child: CircularProgressIndicator(
+                      color: CatWiseTheme.warmHoney,
+                      strokeWidth: 2,
+                    ),
+                  ),
                 ),
               ),
               if (widget.costumeId != null)
@@ -118,42 +162,6 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
           );
         },
       ),
-    );
-  }
-}
-
-class _RiveCat extends StatefulWidget {
-  final String stateMachineName;
-  final String fallbackSm;
-
-  const _RiveCat({
-    super.key,
-    required this.stateMachineName,
-    required this.fallbackSm,
-  });
-
-  @override
-  State<_RiveCat> createState() => _RiveCatState();
-}
-
-class _RiveCatState extends State<_RiveCat> {
-  @override
-  Widget build(BuildContext context) {
-    return RiveAnimation.asset(
-      'assets/animations/bouncy_cat.riv',
-      stateMachine: widget.stateMachineName,
-      fit: BoxFit.contain,
-      onInit: (artboard) {
-        if (widget.stateMachineName != widget.fallbackSm) {
-          final controller = StateMachineController.fromArtboard(
-            artboard,
-            widget.fallbackSm,
-          );
-          if (controller != null) {
-            artboard.addController(controller);
-          }
-        }
-      },
     );
   }
 }
