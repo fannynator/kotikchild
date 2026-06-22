@@ -27,15 +27,15 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   late final AnimationController _hugController;
   StateMachineController? _riveController;
 
-  SMIInput<SMITrigger>? _triggerBlink;
-  SMIInput<SMITrigger>? _triggerJump;
-  SMIInput<SMITrigger>? _triggerTailAnim;
-  SMIInput<SMITrigger>? _triggerIdleTail;
-  SMIInput<SMITrigger>? _triggerREarAnim;
-  SMIInput<SMITrigger>? _triggerIdleREar;
-  SMIInput<SMITrigger>? _triggerLEarAnim;
-  SMIInput<SMITrigger>? _triggerIdleLEar;
-  SMIInput<SMITrigger>? _triggerIdle;
+  SMITrigger? _triggerBlink;
+  SMITrigger? _triggerJump;
+  SMITrigger? _triggerTailAnim;
+  SMITrigger? _triggerIdleTail;
+  SMITrigger? _triggerREarAnim;
+  SMITrigger? _triggerIdleREar;
+  SMITrigger? _triggerLEarAnim;
+  SMITrigger? _triggerIdleLEar;
+  SMITrigger? _triggerIdle;
 
   @override
   void initState() {
@@ -97,26 +97,26 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
 
     switch (mood) {
       case CatMood.neutral:
-        _triggerIdle?.change(SMITrigger.fire);
-        _triggerIdleTail?.change(SMITrigger.fire);
+        _triggerIdle?.fire();
+        _triggerIdleTail?.fire();
       case CatMood.curious:
-        _triggerREarAnim?.change(SMITrigger.fire);
-        _triggerLEarAnim?.change(SMITrigger.fire);
+        _triggerREarAnim?.fire();
+        _triggerLEarAnim?.fire();
       case CatMood.thinking:
-        _triggerBlink?.change(SMITrigger.fire);
-        _triggerIdleTail?.change(SMITrigger.fire);
+        _triggerBlink?.fire();
+        _triggerIdleTail?.fire();
       case CatMood.happy:
-        _triggerJump?.change(SMITrigger.fire);
-        _triggerTailAnim?.change(SMITrigger.fire);
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
       case CatMood.celebrating:
-        _triggerJump?.change(SMITrigger.fire);
-        _triggerTailAnim?.change(SMITrigger.fire);
+        _triggerJump?.fire();
+        _triggerTailAnim?.fire();
       case CatMood.shrugging:
-        _triggerIdle?.change(SMITrigger.fire);
+        _triggerIdle?.fire();
       case CatMood.encouraging:
-        _triggerTailAnim?.change(SMITrigger.fire);
-        _triggerIdleLEar?.change(SMITrigger.fire);
-        _triggerIdleREar?.change(SMITrigger.fire);
+        _triggerTailAnim?.fire();
+        _triggerIdleLEar?.fire();
+        _triggerIdleREar?.fire();
     }
   }
 
