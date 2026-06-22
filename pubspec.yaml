@@ -12,7 +12,7 @@ dependencies:
   flutter_animate: ^4.2.0
   speech_to_text: ^6.3.0
   flutter_tts: ^3.8.0
-  confetti_widget: ^1.0.3
+  flutter_confetti: ^0.1.5
   lottie: ^2.7.0
   provider: ^6.1.1
   shared_preferences: ^2.2.2
