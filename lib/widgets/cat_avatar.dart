@@ -27,15 +27,15 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
   late final AnimationController _hugController;
   StateMachineController? _riveController;
 
-  SMIInput<SMITrigger>?  _triggerBlink;
-  SMIInput<SMITrigger>?  _triggerJump;
-  SMIInput<SMITrigger>?  _triggerTailAnim;
-  SMIInput<SMITrigger>?  _triggerIdleTail;
-  SMIInput<SMITrigger>?  _triggerREarAnim;
-  SMIInput<SMITrigger>?  _triggerIdleREar;
-  SMIInput<SMITrigger>?  _triggerLEarAnim;
-  SMIInput<SMITrigger>?  _triggerIdleLEar;
-  SMIInput<SMITrigger>?  _triggerIdle;
+  SMIInput<SMITrigger>? _triggerBlink;
+  SMIInput<SMITrigger>? _triggerJump;
+  SMIInput<SMITrigger>? _triggerTailAnim;
+  SMIInput<SMITrigger>? _triggerIdleTail;
+  SMIInput<SMITrigger>? _triggerREarAnim;
+  SMIInput<SMITrigger>? _triggerIdleREar;
+  SMIInput<SMITrigger>? _triggerLEarAnim;
+  SMIInput<SMITrigger>? _triggerIdleLEar;
+  SMIInput<SMITrigger>? _triggerIdle;
 
   @override
   void initState() {
@@ -97,26 +97,26 @@ class _CatAvatarState extends State<CatAvatar> with SingleTickerProviderStateMix
 
     switch (mood) {
       case CatMood.neutral:
-        _triggerIdle?.fire();
-        _triggerIdleTail?.fire();
+        _triggerIdle?.value = true;
+        _triggerIdleTail?.value = true;
       case CatMood.curious:
-        _triggerREarAnim?.fire();
-        _triggerLEarAnim?.fire();
+        _triggerREarAnim?.value = true;
+        _triggerLEarAnim?.value = true;
       case CatMood.thinking:
-        _triggerBlink?.fire();
-        _triggerIdleTail?.fire();
+        _triggerBlink?.value = true;
+        _triggerIdleTail?.value = true;
       case CatMood.happy:
-        _triggerJump?.fire();
-        _triggerTailAnim?.fire();
+        _triggerJump?.value = true;
+        _triggerTailAnim?.value = true;
       case CatMood.celebrating:
-        _triggerJump?.fire();
-        _triggerTailAnim?.fire();
+        _triggerJump?.value = true;
+        _triggerTailAnim?.value = true;
       case CatMood.shrugging:
-        _triggerIdle?.fire();
+        _triggerIdle?.value = true;
       case CatMood.encouraging:
-        _triggerTailAnim?.fire();
-        _triggerIdleLEar?.fire();
-        _triggerIdleREar?.fire();
+        _triggerTailAnim?.value = true;
+        _triggerIdleLEar?.value = true;
+        _triggerIdleREar?.value = true;
     }
   }
 
