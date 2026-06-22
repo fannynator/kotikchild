@@ -215,7 +215,9 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
                 _buildTopBar(),
                 const SizedBox(height: 16),
                 Expanded(child: _buildCatArea()),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                _buildVisualCard(),
+                const SizedBox(height: 12),
                 _buildMicButton(),
                 const SizedBox(height: 32),
               ],
@@ -290,6 +292,37 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
       return _ThinkingDots();
     }
     return const SizedBox(height: 40);
+  }
+
+  Widget _buildVisualCard() {
+    if (_currentTask == null) return const SizedBox.shrink();
+
+    final emoji = TaskRepository.emojiFor(_currentTask!);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.8, end: 1.0),
+      duration: CatWiseTheme.animSmooth,
+      builder: (context, value, _) {
+        return Transform.scale(
+          scale: value,
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.6),
+              borderRadius: BorderRadius.circular(CatWiseTheme.plushRadius),
+              boxShadow: CatWiseTheme.plushShadow,
+            ),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 52),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMicButton() {

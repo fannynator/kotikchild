@@ -499,6 +499,53 @@ class TaskRepository {
     return [a, b, c, d, e, f, g, h].where((s) => s.isNotEmpty).toList();
   }
 
+  static String emojiFor(Task task) {
+    switch (task.block) {
+      case TaskBlock.letters:
+        switch (task.type) {
+          case TaskType.nameLetter: return '🔤';
+          case TaskType.findSound: return '👂';
+          case TaskType.inventWord: return '💡';
+          case TaskType.clapWhenHear: return '👏';
+          case TaskType.hardSoft: return '🪨';
+          case TaskType.syllables: return '✂️';
+          case TaskType.rhyme: return '🎵';
+          case TaskType.lostLetter: return '🔍';
+          case TaskType.vowelConsonant: return '🎤';
+          case TaskType.buildWord: return '🧩';
+          default: return '📖';
+        }
+      case TaskBlock.math:
+        switch (task.type) {
+          case TaskType.count: return '🔢';
+          case TaskType.addition: return '➕';
+          case TaskType.subtraction: return '➖';
+          case TaskType.greaterLess: return '⚖️';
+          case TaskType.numberNeighbors: return '🏠';
+          case TaskType.continueSequence: return '➡️';
+          case TaskType.shapes: return '🔺';
+          case TaskType.logicPuzzle: return '🧠';
+          case TaskType.compareObjects: return '📏';
+          case TaskType.time: return '⏰';
+          default: return '🧮';
+        }
+      case TaskBlock.world:
+        switch (task.type) {
+          case TaskType.whoSays: return '🐄';
+          case TaskType.nameBaby: return '🐣';
+          case TaskType.whatIsExtra: return '❓';
+          case TaskType.describeObject: return '🎨';
+          case TaskType.seasons: return '🌸';
+          case TaskType.madeOf: return '🏭';
+          case TaskType.professions: return '👨‍⚕️';
+          case TaskType.artistMistake: return '🖼️';
+          case TaskType.whatFirst: return '🔄';
+          case TaskType.sayOpposite: return '↔️';
+          default: return '🌍';
+        }
+    }
+  }
+
   static void _add(List<Task> list, int id, TaskBlock block, TaskType type,
       int difficulty, String prompt, List<String> accept, String hint) {
     list.add(Task(
