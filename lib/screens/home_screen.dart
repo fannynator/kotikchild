@@ -9,6 +9,7 @@ import '../widgets/star_counter.dart';
 import '../widgets/candy_jar.dart';
 import '../widgets/plush_button.dart';
 import 'costume_shop.dart';
+import 'chat_screen.dart';
 import 'task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -140,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildBlockButtons() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -162,7 +163,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             onTap: () => _onBlockTap(TaskBlock.world),
             label: 'Мир',
           ),
+          _BlockButton(
+            icon: Icons.auto_awesome_rounded,
+            color: CatWiseTheme.dustyRose,
+            onTap: () => _onChatTap(),
+            label: 'ИИ',
+          ),
         ],
+      ),
+    );
+  }
+
+  void _onChatTap() {
+    SoundService.tap();
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const ChatScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: CatWiseTheme.animSmooth,
       ),
     );
   }
