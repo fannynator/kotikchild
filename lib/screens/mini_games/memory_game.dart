@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../widgets/cat_avatar.dart';
 

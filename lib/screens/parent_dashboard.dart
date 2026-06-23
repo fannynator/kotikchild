@@ -491,7 +491,7 @@ class _ReportsTabState extends State<_ReportsTab> {
       final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) return;
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
       if (byteData == null) return;
 
       final dir = await getTemporaryDirectory();
@@ -894,3 +894,4 @@ class _ProviderChip extends StatelessWidget {
       ),
     );
   }
+}
