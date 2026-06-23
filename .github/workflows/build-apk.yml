@@ -46,6 +46,7 @@ jobs:
           sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "25.1.8937393"/' android/app/build.gradle
           sed -i 's/id "com.android.application" version "[^"]*"/id "com.android.application" version "8.7.0"/' android/settings.gradle
           sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "2.1.20"/' android/settings.gradle
+          sed -i 's/gradle-[0-9.]*-all.zip/gradle-8.9-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
           cat >> android/build.gradle << 'GRADLEEOF'
 
           ext.kotlin_version = '2.1.20'
