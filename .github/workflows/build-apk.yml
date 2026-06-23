@@ -47,10 +47,21 @@ jobs:
           sed -i 's/id "com.android.application" version "[^"]*"/id "com.android.application" version "8.7.0"/' android/settings.gradle
           sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "2.1.20"/' android/settings.gradle
           sed -i 's/gradle-[0-9.]*-all.zip/gradle-8.9-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
+          sed -i "s/jvmTarget = JavaVersion.VERSION_1_8/jvmTarget = '1.8'/" android/app/build.gradle
+          sed -i "s/jvmTarget = '11'/jvmTarget = '1.8'/" android/app/build.gradle
           cat >> android/build.gradle << 'GRADLEEOF'
 
           ext.kotlin_version = '2.1.20'
           GRADLEEOF
+
+          cat >> android/app/build.gradle << 'KOTLINEOF'
+
+          kotlin {
+              compilerOptions {
+                  jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+              }
+          }
+          KOTLINEOF
 
       - name: Reinstall Android SDK platform 35 (fix corrupted jar)
         run: |
