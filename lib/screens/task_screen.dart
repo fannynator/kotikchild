@@ -9,6 +9,8 @@ import '../models/task.dart';
 import '../models/pet.dart';
 import '../services/voice_service.dart';
 import '../services/tts_service.dart';
+import '../services/ai_service.dart';
+import '../services/subscription_service.dart';
 import '../services/sound_service.dart';
 import '../widgets/cat_avatar.dart';
 import '../widgets/star_counter.dart';
@@ -53,11 +55,21 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
     SchedulerBinding.instance.addPostFrameCallback((_) => _startTask());
   }
 
-  void _loadTasks() {
-    _sessionTasks.addAll(TaskRepository.session(widget.block));
+  Future<void> _loadTasks() async {
+    final subActive = context.read<SubscriptionService>().hasSubscription;
+    int? difficulty;
+
+    if (subActive) {
+      final blockName = widget.block.name;
+      final stats = <String, int>{'total': 10, 'errors': 0};
+      difficulty = await AIService.adaptDifficulty(blockName, stats);
+    }
+
+    _sessionTasks.addAll(TaskRepository.session(widget.block, difficulty: difficulty));
     if (_sessionTasks.isNotEmpty) {
       _currentTask = _sessionTasks.first;
     }
+    if (mounted) setState(() {});
   }
 
   Future<void> _startTask() async {
@@ -168,7 +180,14 @@ class _TaskScreenState extends State<TaskScreen> with TickerProviderStateMixin {
       setState(() => _catMood = CatMood.encouraging);
       await _tts.speakHint();
       await Future.delayed(const Duration(milliseconds: 300));
-      await _tts.speak(task.hint ?? 'Давай я помогу!');
+
+      final subActive = context.read<SubscriptionService>().hasSubscription;
+      if (subActive) {
+        final explanation = await AIService.explainMistake(task, answer);
+        await _tts.speak(explanation);
+      } else {
+        await _tts.speak(task.hint ?? 'Давай я помогу!');
+      }
       _starsEarned += 0.5;
       _wrongInRow = 0;
     } else {

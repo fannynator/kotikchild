@@ -668,6 +668,7 @@ class _AiTabState extends State<_AiTab> {
     final provider = prefs.getString('ai_provider') ?? 'gemini';
     _keyController.text = key;
     AIService.setApiKey(key);
+    AIService.setProvider(provider);
     if (mounted) setState(() => _provider = provider);
   }
 
@@ -676,6 +677,7 @@ class _AiTabState extends State<_AiTab> {
     await prefs.setString('ai_api_key', _keyController.text.trim());
     await prefs.setString('ai_provider', _provider);
     AIService.setApiKey(_keyController.text.trim());
+    AIService.setProvider(_provider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Сохранено!'), duration: Duration(seconds: 1)),
@@ -715,6 +717,12 @@ class _AiTabState extends State<_AiTab> {
                     selected: _provider == 'gigachat',
                     onTap: () => setState(() => _provider = 'gigachat'),
                   ),
+                  const SizedBox(width: 8),
+                  _ProviderChip(
+                    label: 'YandexGPT',
+                    selected: _provider == 'yandex',
+                    onTap: () => setState(() => _provider = 'yandex'),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -738,7 +746,9 @@ class _AiTabState extends State<_AiTab> {
               Text(
                 _provider == 'gemini'
                     ? 'Gemini API бесплатен (1500 запросов/день). Нужен VPN для РФ. Ключ: aistudio.google.com'
-                    : 'GigaChat API от Сбера. Работает в РФ. Ключ: developers.sber.ru',
+                    : _provider == 'gigachat'
+                        ? 'GigaChat API от Сбера. Работает в РФ. Ключ: developers.sber.ru'
+                        : 'YandexGPT API. От 0.5₽/1000 токенов. Для РФ. Ключ: cloud.yandex.ru → YandexGPT',
                 style: const TextStyle(fontSize: 12, color: CatWiseTheme.textSecondary),
               ),
             ],

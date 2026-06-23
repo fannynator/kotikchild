@@ -20,8 +20,15 @@ class TaskRepository {
     return _allTasks.where((t) => t.block == block).toList();
   }
 
-  static List<Task> session(TaskBlock block, {int count = 10}) {
-    final tasks = byBlock(block)..shuffle();
+  static List<Task> session(TaskBlock block, {int count = 10, int? difficulty}) {
+    var tasks = byBlock(block);
+    if (difficulty != null) {
+      final preferred = tasks.where((t) => t.difficulty == difficulty).toList();
+      final others = tasks.where((t) => t.difficulty != difficulty).toList()..shuffle();
+      tasks = [...preferred..shuffle(), ...others];
+    } else {
+      tasks.shuffle();
+    }
     return tasks.take(count).toList();
   }
 
