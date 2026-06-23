@@ -12,6 +12,8 @@ class ColoringGame extends StatefulWidget {
 class _ColoringGameState extends State<ColoringGame> {
   Color _currentColor = CatWiseTheme.candyPink;
   double _brushSize = 8;
+  String _stencil = '🐱';
+  final List<String> _stencils = ['🐱', '⭐', '🌸', '🏠', '🚀', '🦋', '🌙', '🐶', '🎂', '❤️'];
   final List<_Stroke> _strokes = [];
   _Stroke? _currentStroke;
 
@@ -59,7 +61,7 @@ class _ColoringGameState extends State<ColoringGame> {
                   child: Stack(
                     children: [
                       _buildCanvas(),
-                      const Center(child: Text('🐱', style: TextStyle(fontSize: 120))),
+                      Center(child: Text(_stencil, style: const TextStyle(fontSize: 120))),
                     ],
                   ),
                 ),
@@ -136,6 +138,28 @@ class _ColoringGameState extends State<ColoringGame> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _stencils.map((s) {
+                final selected = _stencil == s;
+                return GestureDetector(
+                  onTap: () => setState(() => _stencil = s),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: selected ? CatWiseTheme.warmHoney.withOpacity(0.3) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: selected ? Border.all(color: CatWiseTheme.warmHoney) : null,
+                    ),
+                    child: Text(s, style: const TextStyle(fontSize: 24)),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _colors.map((c) {
