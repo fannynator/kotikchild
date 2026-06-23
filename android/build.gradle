@@ -1,3 +1,5 @@
 allprojects {
     // empty - repositories configured in settings.gradle
 }
+
+ext.kotlin_version = '2.1.20'
